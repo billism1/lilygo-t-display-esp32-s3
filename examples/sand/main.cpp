@@ -24,6 +24,8 @@ int16_t color = red << 11;
 unsigned long colorChangeTime = 0;
 
 int16_t gravity = 1;
+int16_t percentInputFill = 25;
+int16_t adjacentVelocityResetValue = 3;
 
 int16_t inputWidth = 10;
 int16_t inputX = 160; // COLS / 2;
@@ -240,8 +242,6 @@ void setup()
 // #error  "Error! Please make sure <User_Setups/Setup206_LilyGo_T_Display_S3.h> is selected in <TFT_eSPI/User_Setup_Select.h>"
 // #error  "Error! Please make sure <User_Setups/Setup206_LilyGo_T_Display_S3.h> is selected in <TFT_eSPI/User_Setup_Select.h>"
 
-int16_t adjacentVelocityResetValue = 3;
-
 void resetAdjacentPixels(int16_t x, int16_t y)
 {
   int16_t xPlus = x + 1;
@@ -328,7 +328,7 @@ void loop()
   {
     for (int16_t j = -halfInputWidth; j <= halfInputWidth; ++j)
     {
-      if (random(100) < 50)
+      if (random(100) < percentInputFill)
       {
         int16_t col = inputX + i;
         int16_t row = inputY + j;
