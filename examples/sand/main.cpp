@@ -240,57 +240,64 @@ void setup()
 // #error  "Error! Please make sure <User_Setups/Setup206_LilyGo_T_Display_S3.h> is selected in <TFT_eSPI/User_Setup_Select.h>"
 // #error  "Error! Please make sure <User_Setups/Setup206_LilyGo_T_Display_S3.h> is selected in <TFT_eSPI/User_Setup_Select.h>"
 
+int16_t adjacentVelocityResetValue = 3;
+
 void resetAdjacentPixels(int16_t x, int16_t y)
 {
+  int16_t xPlus = x + 1;
+  int16_t xMinus = x - 1;
+  int16_t yPlus = y + 1;
+  int16_t yMinus = y - 1;
+
   // Row above
-  if (withinRows(y - 1))
+  if (withinRows(yMinus))
   {
-    if (nextStateGrid[y - 1][x - 1] == GRID_STATE_COMPLETE)
+    if (nextStateGrid[yMinus][xMinus] == GRID_STATE_COMPLETE)
     {
-      nextStateGrid[y - 1][x - 1] = GRID_STATE_FALLING;
-      nextVelocityGrid[y - 1][x - 1] = 1;
+      nextStateGrid[yMinus][xMinus] = GRID_STATE_FALLING;
+      nextVelocityGrid[yMinus][xMinus] = adjacentVelocityResetValue;
     }
-    if (nextStateGrid[y - 1][x] == GRID_STATE_COMPLETE)
+    if (nextStateGrid[yMinus][x] == GRID_STATE_COMPLETE)
     {
-      nextStateGrid[y - 1][x] = GRID_STATE_FALLING;
-      nextVelocityGrid[y - 1][x] = 1;
+      nextStateGrid[yMinus][x] = GRID_STATE_FALLING;
+      nextVelocityGrid[yMinus][x] = adjacentVelocityResetValue;
     }
-    if (nextStateGrid[y - 1][x + 1] == GRID_STATE_COMPLETE)
+    if (nextStateGrid[yMinus][xPlus] == GRID_STATE_COMPLETE)
     {
-      nextStateGrid[y - 1][x + 1] = GRID_STATE_FALLING;
-      nextVelocityGrid[y - 1][x + 1] = 1;
+      nextStateGrid[yMinus][xPlus] = GRID_STATE_FALLING;
+      nextVelocityGrid[yMinus][xPlus] = adjacentVelocityResetValue;
     }
   }
 
   // Current row
-  if (nextStateGrid[y][x - 1] == GRID_STATE_COMPLETE)
+  if (nextStateGrid[y][xMinus] == GRID_STATE_COMPLETE)
   {
-    nextStateGrid[y][x - 1] = GRID_STATE_FALLING;
-    nextVelocityGrid[y][x - 1] = 1;
+    nextStateGrid[y][xMinus] = GRID_STATE_FALLING;
+    nextVelocityGrid[y][xMinus] = adjacentVelocityResetValue;
   }
-  if (nextStateGrid[y][x + 1] == GRID_STATE_COMPLETE)
+  if (nextStateGrid[y][xPlus] == GRID_STATE_COMPLETE)
   {
-    nextStateGrid[y][x + 1] = GRID_STATE_FALLING;
-    nextVelocityGrid[y][x + 1] = 1;
+    nextStateGrid[y][xPlus] = GRID_STATE_FALLING;
+    nextVelocityGrid[y][xPlus] = adjacentVelocityResetValue;
   }
 
   // Row below
-  if (withinRows(y + 1))
+  if (withinRows(yPlus))
   {
-    if (nextStateGrid[y + 1][x - 1] == GRID_STATE_COMPLETE)
+    if (nextStateGrid[yPlus][xMinus] == GRID_STATE_COMPLETE)
     {
-      nextStateGrid[y + 1][x - 1] = GRID_STATE_FALLING;
-      nextVelocityGrid[y + 1][x - 1] = 1;
+      nextStateGrid[yPlus][xMinus] = GRID_STATE_FALLING;
+      nextVelocityGrid[yPlus][xMinus] = adjacentVelocityResetValue;
     }
-    if (nextStateGrid[y + 1][x] == GRID_STATE_COMPLETE)
+    if (nextStateGrid[yPlus][x] == GRID_STATE_COMPLETE)
     {
-      nextStateGrid[y + 1][x] = GRID_STATE_FALLING;
-      nextVelocityGrid[y + 1][x] = 1;
+      nextStateGrid[yPlus][x] = GRID_STATE_FALLING;
+      nextVelocityGrid[yPlus][x] = adjacentVelocityResetValue;
     }
-    if (nextStateGrid[y + 1][x + 1] == GRID_STATE_COMPLETE)
+    if (nextStateGrid[yPlus][xPlus] == GRID_STATE_COMPLETE)
     {
-      nextStateGrid[y + 1][x + 1] = GRID_STATE_FALLING;
-      nextVelocityGrid[y + 1][x + 1] = 1;
+      nextStateGrid[yPlus][xPlus] = GRID_STATE_FALLING;
+      nextVelocityGrid[yPlus][xPlus] = adjacentVelocityResetValue;
     }
   }
 }
