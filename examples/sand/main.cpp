@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h> // Need to use the modified TFT library provided in this project.
 #include <pin_config.h>
-#include "OneButton.h"
+#include <OneButton.h>
 
 #define top_button_pin PIN_BUTTON_1
 #define bottom_button_pin PIN_BUTTON_2
@@ -240,6 +240,61 @@ void setup()
 // #error  "Error! Please make sure <User_Setups/Setup206_LilyGo_T_Display_S3.h> is selected in <TFT_eSPI/User_Setup_Select.h>"
 // #error  "Error! Please make sure <User_Setups/Setup206_LilyGo_T_Display_S3.h> is selected in <TFT_eSPI/User_Setup_Select.h>"
 
+void resetAdjacentPixels(int16_t x, int16_t y)
+{
+  // Row above
+  if (withinRows(y - 1))
+  {
+    if (nextStateGrid[y - 1][x - 1] == GRID_STATE_COMPLETE)
+    {
+      nextStateGrid[y - 1][x - 1] = GRID_STATE_FALLING;
+      nextVelocityGrid[y - 1][x - 1] = 1;
+    }
+    if (nextStateGrid[y - 1][x] == GRID_STATE_COMPLETE)
+    {
+      nextStateGrid[y - 1][x] = GRID_STATE_FALLING;
+      nextVelocityGrid[y - 1][x] = 1;
+    }
+    if (nextStateGrid[y - 1][x + 1] == GRID_STATE_COMPLETE)
+    {
+      nextStateGrid[y - 1][x + 1] = GRID_STATE_FALLING;
+      nextVelocityGrid[y - 1][x + 1] = 1;
+    }
+  }
+
+  // Current row
+  if (nextStateGrid[y][x - 1] == GRID_STATE_COMPLETE)
+  {
+    nextStateGrid[y][x - 1] = GRID_STATE_FALLING;
+    nextVelocityGrid[y][x - 1] = 1;
+  }
+  if (nextStateGrid[y][x + 1] == GRID_STATE_COMPLETE)
+  {
+    nextStateGrid[y][x + 1] = GRID_STATE_FALLING;
+    nextVelocityGrid[y][x + 1] = 1;
+  }
+
+  // Row below
+  if (withinRows(y + 1))
+  {
+    if (nextStateGrid[y + 1][x - 1] == GRID_STATE_COMPLETE)
+    {
+      nextStateGrid[y + 1][x - 1] = GRID_STATE_FALLING;
+      nextVelocityGrid[y + 1][x - 1] = 1;
+    }
+    if (nextStateGrid[y + 1][x] == GRID_STATE_COMPLETE)
+    {
+      nextStateGrid[y + 1][x] = GRID_STATE_FALLING;
+      nextVelocityGrid[y + 1][x] = 1;
+    }
+    if (nextStateGrid[y + 1][x + 1] == GRID_STATE_COMPLETE)
+    {
+      nextStateGrid[y + 1][x + 1] = GRID_STATE_FALLING;
+      nextVelocityGrid[y + 1][x + 1] = 1;
+    }
+  }
+}
+
 void loop()
 {
   // Serial.println("Looping...");
@@ -272,7 +327,7 @@ void loop()
         int16_t row = inputY + j;
 
         if (withinCols(col) && withinRows(row) &&
-          (stateGrid[row][col] == GRID_STATE_NONE || stateGrid[row][col] == GRID_STATE_COMPLETE))
+            (stateGrid[row][col] == GRID_STATE_NONE || stateGrid[row][col] == GRID_STATE_COMPLETE))
         {
           grid[row][col] = color;
           velocityGrid[row][col] = 1;
@@ -365,6 +420,8 @@ void loop()
           }
 
           int16_t belowState = stateGrid[y][j];
+          int16_t belowNextState = nextStateGrid[y][j];
+
           int16_t direction = 1;
           if (random(100) < 50)
           {
@@ -372,14 +429,22 @@ void loop()
           }
 
           int16_t belowStateA = -1;
+          int16_t belowNextStateA = -1;
           int16_t belowStateB = -1;
+          int16_t belowNextStateB = -1;
 
           if (withinCols(j + direction))
+          {
             belowStateA = stateGrid[y][j + direction];
+            belowNextStateA = nextStateGrid[y][j + direction];
+          }
           if (withinCols(j - direction))
+          {
             belowStateB = stateGrid[y][j - direction];
+            belowNextStateB = nextStateGrid[y][j - direction];
+          }
 
-          if (belowState == GRID_STATE_NONE)
+          if (belowState == GRID_STATE_NONE && belowNextState == GRID_STATE_NONE)
           {
             // This pixel will go straight down.
             nextGrid[y][j] = pixelColor;
@@ -388,7 +453,7 @@ void loop()
             moved = true;
             break;
           }
-          else if (belowStateA == GRID_STATE_NONE)
+          else if (belowStateA == GRID_STATE_NONE && belowNextStateA == GRID_STATE_NONE)
           {
             // This pixel will fall to side A (right)
             nextGrid[y][j + direction] = pixelColor;
@@ -397,7 +462,7 @@ void loop()
             moved = true;
             break;
           }
-          else if (belowStateB == GRID_STATE_NONE)
+          else if (belowStateB == GRID_STATE_NONE && belowNextStateB == GRID_STATE_NONE)
           {
             // This pixel will fall to side B (left)
             nextGrid[y][j - direction] = pixelColor;
@@ -409,13 +474,16 @@ void loop()
         }
       }
 
+      if (moved)
+        resetAdjacentPixels(j, i);
+
       if (pixelState != GRID_STATE_NONE && !moved)
       {
         nextGrid[i][j] = grid[i][j];
         nextVelocityGrid[i][j] = velocityGrid[i][j] + gravity;
         if (pixelState == GRID_STATE_NEW)
           nextStateGrid[i][j] = GRID_STATE_FALLING;
-        else if (pixelState == GRID_STATE_FALLING && pixelVelocity > 5)
+        else if (pixelState == GRID_STATE_FALLING && pixelVelocity > 2)
           nextStateGrid[i][j] = GRID_STATE_COMPLETE;
         else
           nextStateGrid[i][j] = pixelState; // should be GRID_STATE_COMPLETE
