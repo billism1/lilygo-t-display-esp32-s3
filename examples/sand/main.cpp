@@ -24,7 +24,7 @@ int16_t color = red << 11;
 unsigned long colorChangeTime = 0;
 
 int16_t gravity = 1;
-int16_t percentInputFill = 25;
+int16_t percentInputFill = 10;
 int16_t adjacentVelocityResetValue = 3;
 
 int16_t inputWidth = 10;
