@@ -8,7 +8,7 @@ Note that these examples use a customized version of the "TFT_eSPI" library, inc
 
 ---
 
-## Notes aobut the Particles Example
+## Notes about the Particles Example
 
 The 7000 particles example was "manually forked" from the following GitHub repo:
 https://github.com/doctorpartlow/esp32s3lilygoanimations/blob/main/particles.ino
